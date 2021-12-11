@@ -1,0 +1,2 @@
+# FakeNewsDetection
+Master Thesis
