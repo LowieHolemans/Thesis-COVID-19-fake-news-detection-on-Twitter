@@ -1,0 +1,1070 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "CoAID Data Preprocessing.ipynb",
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wlEoeQ74VK5D",
+        "outputId": "3a425a2f-89a8-43d1-a3c0-7e911fb56915"
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mounted at /content/drive\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd"
+      ],
+      "metadata": {
+        "id": "f24llQefD1a4"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pd.set_option('display.max_colwidth', None)"
+      ],
+      "metadata": {
+        "id": "tCkv2oosDFNR"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#adding a column with label, depending on the data type\n",
+        "\n",
+        "def addlabel(inputdata):\n",
+        "  if ttype == \"Real\":\n",
+        "    inputdata[\"label\"] = 0\n",
+        "  elif ttype == \"Fake\":\n",
+        "    inputdata[\"label\"] = 1\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "89eloUGQxWs4"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**1. claim tweets**"
+      ],
+      "metadata": {
+        "id": "r4rFALHspPiY"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#claim_tweets (real)\n",
+        "ftype = \"Claim\"\n",
+        "ttype = \"Real\"\n",
+        "reply = False\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "claim_tweet1 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweet2 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweet3 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweet4 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweets_real = [claim_tweet1,claim_tweet2,claim_tweet3,claim_tweet4]\n",
+        "for i in range(len(claim_tweets_real)):\n",
+        "  addlabel(claim_tweets_real[i])\n",
+        "\n",
+        "#claim_tweets (fake)\n",
+        "ftype = \"Claim\"\n",
+        "ttype = \"Fake\"\n",
+        "reply = False\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else : \n",
+        "    tweets = \"tweets\"\n",
+        "claim_tweet5 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweet6 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "claim_tweets_fake = [claim_tweet5,claim_tweet6]\n",
+        "for i in range(len(claim_tweets_fake)):\n",
+        "  addlabel(claim_tweets_fake[i])"
+      ],
+      "metadata": {
+        "id": "yJw4U6NAcTt9"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reindex_claim_tweets(inputdata):\n",
+        "  column_names = [\"claim_id\",\"tweet_id\",\"text\",\"label\",\"source\",\"created_at\",\"possibly_sensitive\",\"author_id\",\"lang\",\"in_reply_to_user_id\",\"referenced_tweets\",\"attachments\",\"geo\",\"withheld\",\"entities\",\"conversation_id\",\"public_metrics\"]\n",
+        "  inputdata = inputdata.reindex(columns=column_names)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "f-eoyc1zoOg4"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_tweets_list = [claim_tweet1,claim_tweet2,claim_tweet3,claim_tweet4,claim_tweet5,claim_tweet6]\n",
+        "for i in range(len(claim_tweets_list)):\n",
+        "  reindex_claim_tweets(claim_tweets_list[i])\n",
+        "claim_tweets_raw = pd.concat(claim_tweets_list, axis=0)\n",
+        "claim_tweets_raw.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/claim_tweets_raw.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "p6IluPn24Uyd"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**1.2 Claim replies**"
+      ],
+      "metadata": {
+        "id": "HlhrWI9GpSr8"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#claim_replies (real)\n",
+        "ftype = \"Claim\"\n",
+        "ttype = \"Real\"\n",
+        "reply = True\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "claim_reply1 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "claim_reply2 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "claim_reply3 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "claim_reply4 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "claim_replies_real = [claim_reply1,claim_reply2,claim_reply3,claim_reply4]\n",
+        "for i in range(len(claim_replies_real)):\n",
+        "  addlabel(claim_replies_real[i])\n",
+        "\n",
+        "#claim_replies (fake)\n",
+        "ftype = \"Claim\"\n",
+        "ttype = \"Fake\"\n",
+        "reply = True\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "claim_reply5 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "claim_reply6 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "claim_replies_fake = [claim_reply5,claim_reply6]\n",
+        "for i in range(len(claim_replies_fake)):\n",
+        "  addlabel(claim_replies_fake[i])"
+      ],
+      "metadata": {
+        "id": "bgE_gpRJpppU"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reindex_claim_reply(inputdata):\n",
+        "  column_names = [\"claim_id\",\"tweet_id\",\"reply_id\",\"text\",\"label\",\"source\",\"created_at\",\"possibly_sensitive\",\"author_id\",\"lang\",\"in_reply_to_user_id\",\"referenced_tweets\",\"attachments\",\"geo\",\"withheld\",\"entities\",\"conversation_id\",\"public_metrics\"]\n",
+        "  inputdata = inputdata.reindex(columns=column_names)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "kLNejWOPpppU"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_reply_list = [claim_reply1,claim_reply2,claim_reply3,claim_reply4,claim_reply5,claim_reply6]\n",
+        "for i in range(len(claim_reply_list)):\n",
+        "  reindex_claim_reply(claim_reply_list[i])\n",
+        "claim_replies_raw = pd.concat(claim_reply_list, axis=0)\n",
+        "claim_replies_raw.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/claim_replies_raw.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "YHWpRPkBpppU"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**1.3 News Tweets** "
+      ],
+      "metadata": {
+        "id": "7_NDUiMrsNrY"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#news_tweets (real)\n",
+        "ftype = \"News\"\n",
+        "ttype = \"Real\"\n",
+        "reply = False\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "news_tweet1 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split1_hydr.csv\")\n",
+        "news_tweet2 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split2_hydr.csv\")\n",
+        "news_tweet3 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split3_hydr.csv\")\n",
+        "news_tweet4 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split4_hydr.csv\")\n",
+        "news_tweet5 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split1_hydr.csv\")\n",
+        "news_tweet6 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split2_hydr.csv\")\n",
+        "news_tweet7 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split3_hydr.csv\")\n",
+        "news_tweet8 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweet9 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweets_real = [news_tweet1,news_tweet2,news_tweet3,news_tweet4,news_tweet5,news_tweet6,news_tweet7,news_tweet8,news_tweet9]\n",
+        "for i in range(len(news_tweets_real)):\n",
+        "  addlabel(news_tweets_real[i])\n",
+        "\n",
+        "#news_tweets (fake)\n",
+        "ftype = \"News\"\n",
+        "ttype = \"Fake\"\n",
+        "reply = False\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "news_tweet10 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweet11 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweet12 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweet13 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "news_tweets_fake = [news_tweet10,news_tweet11,news_tweet12,news_tweet13]\n",
+        "for i in range(len(news_tweets_fake)):\n",
+        "  addlabel(news_tweets_fake[i])"
+      ],
+      "metadata": {
+        "id": "DfSX3S93sUlz"
+      },
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reindex_news_tweet(inputdata):\n",
+        "  column_names = [\"news_id\",\"tweet_id\",\"text\",\"label\",\"source\",\"created_at\",\"possibly_sensitive\",\"author_id\",\"lang\",\"in_reply_to_user_id\",\"referenced_tweets\",\"attachments\",\"geo\",\"withheld\",\"entities\",\"conversation_id\",\"public_metrics\"]\n",
+        "  inputdata = inputdata.reindex(columns=column_names)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "FQU3o5KvsUlz"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_tweet_list = [news_tweet1,news_tweet2,news_tweet3,news_tweet4,news_tweet5,news_tweet6,news_tweet7,news_tweet8,news_tweet9,news_tweet10,news_tweet11,news_tweet12,news_tweet13]\n",
+        "for i in range(len(news_tweet_list)):\n",
+        "  reindex_news_tweet(news_tweet_list[i])\n",
+        "news_tweets_raw = pd.concat(news_tweet_list, axis=0)\n",
+        "news_tweets_raw.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/news_tweets_raw.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "s8vvyPE8sUlz"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**1.4 News Replies** "
+      ],
+      "metadata": {
+        "id": "Dj6wocfruzkn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#news_replies (real)\n",
+        "ftype = \"News\"\n",
+        "ttype = \"Real\"\n",
+        "reply = True\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "news_replies1 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split1_hydr.csv\")\n",
+        "news_replies2 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split2_hydr.csv\")\n",
+        "news_replies3 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"split3_hydr.csv\")\n",
+        "news_replies4 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split1_hydr.csv\")\n",
+        "news_replies5 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split2_hydr.csv\")\n",
+        "news_replies6 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"split3_hydr.csv\")\n",
+        "news_replies7 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies8 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies_real = [news_replies1,news_replies2,news_replies3,news_replies4,news_replies5,news_replies6,news_replies7,news_replies8]\n",
+        "for i in range(len(news_replies_real)):\n",
+        "  addlabel(news_replies_real[i])\n",
+        "\n",
+        "#news_tweets (fake)\n",
+        "ftype = \"News\"\n",
+        "ttype = \"Fake\"\n",
+        "reply = True\n",
+        "if reply :\n",
+        "    tweets = \"tweets_replies\"\n",
+        "else :\n",
+        "    tweets = \"tweets\"\n",
+        "news_replies9 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"05-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"05-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies10 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"07-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"07-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies11 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"09-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"09-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies12 =  pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/\" + \"11-01-2020\" + \"/\" + ftype + ttype + \"COVID-19_\" + tweets + \"_\" + \"11-01-2020\" + \"_hydr.csv\")\n",
+        "news_replies_fake = [news_replies9,news_replies10,news_replies11,news_replies12]\n",
+        "for i in range(len(news_replies_fake)):\n",
+        "  addlabel(news_replies_fake[i])"
+      ],
+      "metadata": {
+        "id": "KgVZ9wH48kuy"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reindex_news_replies(inputdata):\n",
+        "  column_names = [\"news_id\",\"tweet_id\",\"reply_id\",\"text\",\"label\",\"source\",\"created_at\",\"possibly_sensitive\",\"author_id\",\"lang\",\"in_reply_to_user_id\",\"referenced_tweets\",\"attachments\",\"geo\",\"withheld\",\"entities\",\"conversation_id\",\"public_metrics\"]\n",
+        "  inputdata = inputdata.reindex(columns=column_names)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "JYnB6Rs3u5db"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_replies_list = [news_replies1,news_replies2,news_replies3,news_replies4,news_replies5,news_replies6,news_replies7,news_replies8,news_replies9,news_replies10,news_replies11,news_replies12]\n",
+        "for i in range(len(news_replies_list)):\n",
+        "  reindex_news_replies(news_replies_list[i])\n",
+        "news_replies_raw = pd.concat(news_replies_list, axis=0)\n",
+        "news_replies_raw.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/news_replies_raw.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "MLy9i6y4u5dc"
+      },
+      "execution_count": 16,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**2. Preprocessing of those 4 datasets:**\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "inLNdVM1VjUz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_tweets = pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/claim_tweets_raw.csv\")\n",
+        "claim_replies = pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/claim_replies_raw.csv\")\n",
+        "news_tweets = pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/news_tweets_raw.csv\")\n",
+        "news_replies = pd.read_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Raw All/news_replies_raw.csv\")"
+      ],
+      "metadata": {
+        "id": "vo-0aZOL-0Hv",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "8da6e785-77f0-44c3-9695-293451d6a4ce"
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.7/dist-packages/IPython/core/interactiveshell.py:2882: DtypeWarning: Columns (0,1,2,8,17) have mixed types.Specify dtype option on import or set low_memory=False.\n",
+            "  exec(code_obj, self.user_global_ns, self.user_ns)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**dropping columns with barely any values and rows with no text**"
+      ],
+      "metadata": {
+        "id": "xiL-AqCghixq"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "note: claim datasets don't have a withheld column. Hence the split in the code below"
+      ],
+      "metadata": {
+        "id": "qdYu0FlYYW4e"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def dropcolumns(inputdata):\n",
+        "  if \"withheld\" in inputdata.columns:\n",
+        "    inputdata.drop(labels=['withheld'], axis=1)\n",
+        "  else:\n",
+        "    True\n",
+        "  inputdata = inputdata.drop(labels=['attachments','geo'], axis=1)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "n0cCVaN8ed26"
+      },
+      "execution_count": 18,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def drop_na(inputdata):\n",
+        "  inputdata = inputdata[inputdata['text'].notna()]\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "BR0hymiVhTph"
+      },
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**source prep**\n"
+      ],
+      "metadata": {
+        "id": "IBv6M8I3H_9W"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def source_prep(inputdata):\n",
+        "  for i in range(len(inputdata[\"source\"])):\n",
+        "      if inputdata[\"source\"].iloc[i] not in ['Twitter Web App','Twitter for Android','Twitter for iPhone','Twitter Web Client','TweetDeck']:\n",
+        "        inputdata[\"source\"].iloc[i] = \"other\"\n",
+        "  inputdata = pd.get_dummies(inputdata, columns=[\"source\"])\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "Ajlk74AEJfUZ"
+      },
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**language prep**"
+      ],
+      "metadata": {
+        "id": "PAS4D7gGZy1j"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def prep_language(inputdata):\n",
+        "  for i in range(len(inputdata)):\n",
+        "      if inputdata[\"lang\"].iloc[i] == 'en':\n",
+        "        inputdata[\"lang\"].iloc[i] = \"1\"\n",
+        "      else:\n",
+        "        inputdata[\"lang\"].iloc[i] = \"0\"\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "gPqJ2En1ZxDG"
+      },
+      "execution_count": 21,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**possibly sensitive**"
+      ],
+      "metadata": {
+        "id": "s2ZZISUt98RB"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def sensitive_prep(inputdata):\n",
+        "  for i in range(len(inputdata[\"possibly_sensitive\"])):\n",
+        "    try :\n",
+        "      inputdata[\"possibly_sensitive\"].iloc[i] = int(inputdata[\"possibly_sensitive\"].iloc[i])\n",
+        "    except : \n",
+        "      inputdata[\"possibly_sensitive\"].iloc[i] = np.NaN\n",
+        "      continue\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "Prm7imR5rsrr"
+      },
+      "execution_count": 22,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**created_at**"
+      ],
+      "metadata": {
+        "id": "BDzFISuftGzw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def date_prep(inputdata):\n",
+        "  inputdata[\"created_at\"] = pd.to_datetime(inputdata[\"created_at\"])\n",
+        "  inputdata[\"month_created\"] = inputdata[\"created_at\"].dt.month\n",
+        "  inputdata[\"day_week_created\"] = inputdata[\"created_at\"].dt.dayofweek  \n",
+        "  inputdata[\"hour_created\"] = inputdata[\"created_at\"].dt.hour \n",
+        "  inputdata = inputdata.drop(labels=['created_at'], axis=1)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "YfPWdu7PvPJY"
+      },
+      "execution_count": 23,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**public metrics**"
+      ],
+      "metadata": {
+        "id": "cajqibWK_OL4"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import re\n",
+        "import numpy as np"
+      ],
+      "metadata": {
+        "id": "s4E5-epO_stp"
+      },
+      "execution_count": 24,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def prep_public_metrics(inputdata):\n",
+        "  inputdata[\"retweet_count\"] = \"\"\n",
+        "  inputdata[\"reply_count\"] = \"\"\n",
+        "  inputdata[\"like_count\"] = \"\"\n",
+        "  inputdata[\"quote_count\"] = \"\"\n",
+        "  for i in range(len(inputdata[\"public_metrics\"])):\n",
+        "    try:\n",
+        "      inputdata['retweet_count'].iloc[i] = re.findall(\"\\d\",str(inputdata[\"public_metrics\"].iloc[i]))[0]\n",
+        "      inputdata['reply_count'].iloc[i] = re.findall(\"\\d\",str(inputdata[\"public_metrics\"].iloc[i]))[1]\n",
+        "      inputdata['like_count'].iloc[i] = re.findall(\"\\d\",str(inputdata[\"public_metrics\"].iloc[i]))[2]\n",
+        "      inputdata['quote_count'].iloc[i] = re.findall(\"\\d\",str(inputdata[\"public_metrics\"].iloc[i]))[3]\n",
+        "    except:\n",
+        "      continue\n",
+        "  inputdata = inputdata.drop(labels=[\"public_metrics\"], axis=1)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "FU7Uoq0vULqM"
+      },
+      "execution_count": 25,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**entities** (focus especially hashtags)"
+      ],
+      "metadata": {
+        "id": "cO4hRg7kbz07"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import re\n",
+        "def get_hashtags(inputdata):\n",
+        "  inputdata['hashtags'] = \" \"\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"hashtags\"].iloc[i] = re.findall(r\"#(\\w+)\",str(inputdata[\"text\"].iloc[i]))\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "0VZf9NPEaEX2"
+      },
+      "execution_count": 26,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install tweet-preprocessor\n",
+        "import preprocessor as p"
+      ],
+      "metadata": {
+        "id": "tVl_tjRmiSNm",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d3a2ae10-13fa-4249-86bf-c36c4b5c80d9"
+      },
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting tweet-preprocessor\n",
+            "  Downloading tweet_preprocessor-0.6.0-py3-none-any.whl (27 kB)\n",
+            "Installing collected packages: tweet-preprocessor\n",
+            "Successfully installed tweet-preprocessor-0.6.0\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def data_cleaning(inputdata):\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"text\"].iloc[i] = p.clean(str(inputdata['text'].iloc[i]))\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "-k2lM3tthjTY"
+      },
+      "execution_count": 28,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "remove digits and lower text"
+      ],
+      "metadata": {
+        "id": "QaiU7hptjep3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#important libraries for preprocessing using NLTK\n",
+        "import nltk\n",
+        "from nltk import word_tokenize, FreqDist\n",
+        "from nltk.corpus import stopwords\n",
+        "from nltk.stem import WordNetLemmatizer\n",
+        "nltk.download\n",
+        "nltk.download('wordnet')\n",
+        "nltk.download('stopwords')\n",
+        "from nltk.tokenize import TweetTokenizer"
+      ],
+      "metadata": {
+        "id": "0W7BotOTjtso",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "eb9954bb-adc2-4e30-f9c7-518c03ebf2dc"
+      },
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[nltk_data] Downloading package wordnet to /root/nltk_data...\n",
+            "[nltk_data]   Unzipping corpora/wordnet.zip.\n",
+            "[nltk_data] Downloading package stopwords to /root/nltk_data...\n",
+            "[nltk_data]   Unzipping corpora/stopwords.zip.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import re\n",
+        "import string\n",
+        "def remove_numbers(inputdata):\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"text\"].iloc[i] = re.sub(r'\\d+','',str(inputdata[\"text\"].iloc[i]))\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "o-BimSvIkHJB"
+      },
+      "execution_count": 30,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def lowercase(inputdata):\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"text\"].iloc[i] = str(inputdata[\"text\"].iloc[i]).lower() \n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "yh1BWzGJlXVO"
+      },
+      "execution_count": 31,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "spell check"
+      ],
+      "metadata": {
+        "id": "SMX0_g3_9eF5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install autocorrect\n",
+        "from autocorrect import Speller"
+      ],
+      "metadata": {
+        "id": "0Iyp6kLa-QiV",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "725d917a-c082-49e4-9083-035c19b2b939"
+      },
+      "execution_count": 32,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting autocorrect\n",
+            "  Downloading autocorrect-2.6.1.tar.gz (622 kB)\n",
+            "\u001b[?25l\r\u001b[K     |▌                               | 10 kB 3.6 MB/s eta 0:00:01\r\u001b[K     |█                               | 20 kB 6.3 MB/s eta 0:00:01\r\u001b[K     |█▋                              | 30 kB 3.9 MB/s eta 0:00:01\r\u001b[K     |██                              | 40 kB 5.0 MB/s eta 0:00:01\r\u001b[K     |██▋                             | 51 kB 5.2 MB/s eta 0:00:01\r\u001b[K     |███▏                            | 61 kB 6.1 MB/s eta 0:00:01\r\u001b[K     |███▊                            | 71 kB 6.3 MB/s eta 0:00:01\r\u001b[K     |████▏                           | 81 kB 5.8 MB/s eta 0:00:01\r\u001b[K     |████▊                           | 92 kB 6.4 MB/s eta 0:00:01\r\u001b[K     |█████▎                          | 102 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████▉                          | 112 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████▎                         | 122 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████▉                         | 133 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████▍                        | 143 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████                        | 153 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████▍                       | 163 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████                       | 174 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████▌                      | 184 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████                      | 194 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████▌                     | 204 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████                     | 215 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████▋                    | 225 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████                    | 235 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████▋                   | 245 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████▏                  | 256 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████▊                  | 266 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████▏                 | 276 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████▊                 | 286 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████▎                | 296 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████▉                | 307 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████▎               | 317 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████▉               | 327 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████▍              | 337 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████              | 348 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████▍             | 358 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████             | 368 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████▌            | 378 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████            | 389 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████▌           | 399 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████           | 409 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████▋          | 419 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████          | 430 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████▋         | 440 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████▏        | 450 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████▊        | 460 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████████▏       | 471 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████████▊       | 481 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████████▎      | 491 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████████▉      | 501 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████████▎     | 512 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████████▉     | 522 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████████▍    | 532 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████████▉    | 542 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████████████▍   | 552 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████████████   | 563 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |█████████████████████████████▌  | 573 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████████████  | 583 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |██████████████████████████████▌ | 593 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████████████ | 604 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |███████████████████████████████▋| 614 kB 6.9 MB/s eta 0:00:01\r\u001b[K     |████████████████████████████████| 622 kB 6.9 MB/s \n",
+            "\u001b[?25hBuilding wheels for collected packages: autocorrect\n",
+            "  Building wheel for autocorrect (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for autocorrect: filename=autocorrect-2.6.1-py3-none-any.whl size=622382 sha256=3051287a6aedd76ec9d675d78eab2b302048436503e338d340b4a9e4d49e8de3\n",
+            "  Stored in directory: /root/.cache/pip/wheels/54/d4/37/8244101ad50b0f7d9bffd93ce58ed7991ee1753b290923934b\n",
+            "Successfully built autocorrect\n",
+            "Installing collected packages: autocorrect\n",
+            "Successfully installed autocorrect-2.6.1\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def spell_check(inputdata):\n",
+        "  spell = Speller(lang='en')\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"text\"].iloc[i] = spell(inputdata[\"text\"].iloc[i])\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "aSck9pMi-gaJ"
+      },
+      "execution_count": 33,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "lemmatizing and tokenizing"
+      ],
+      "metadata": {
+        "id": "qDJw2fsaneGq"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from nltk.stem import WordNetLemmatizer\n",
+        "from nltk.tokenize import word_tokenize\n",
+        "lemmatizer = nltk.stem.WordNetLemmatizer()\n",
+        "w_tokenizer = TweetTokenizer()\n",
+        "def lemmatize_text(inputdata):\n",
+        " return [(lemmatizer.lemmatize(w)) for w in \\\n",
+        "                                     w_tokenizer.tokenize((str(inputdata[\"text\"])))]"
+      ],
+      "metadata": {
+        "id": "tC8HGgxnnflb"
+      },
+      "execution_count": 34,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "removing stopwords"
+      ],
+      "metadata": {
+        "id": "5wyjiZ-TobIz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import nltk\n",
+        "nltk.download('wordnet')\n",
+        "import nltk\n",
+        "nltk.download('stopwords')\n",
+        "from nltk.corpus import stopwords\n",
+        "nltk.download('punkt')\n",
+        "def rm_stop(inputdata): \n",
+        "  stop_words = set(stopwords.words('english'))\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    word_tokens = word_tokenize(str(inputdata[\"text\"].iloc[i])) \n",
+        "    filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]\n",
+        "    filtered_sentence = []\n",
+        "    for w in word_tokens:\n",
+        "      if w not in stop_words:\n",
+        "        filtered_sentence.append(w)\n",
+        "    inputdata[\"text\"].iloc[i] = filtered_sentence\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "CJENB5hLzkei",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c1c86ce3-00f0-4e91-b27e-48a1b02cc233"
+      },
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[nltk_data] Downloading package wordnet to /root/nltk_data...\n",
+            "[nltk_data]   Package wordnet is already up-to-date!\n",
+            "[nltk_data] Downloading package stopwords to /root/nltk_data...\n",
+            "[nltk_data]   Package stopwords is already up-to-date!\n",
+            "[nltk_data] Downloading package punkt to /root/nltk_data...\n",
+            "[nltk_data]   Unzipping tokenizers/punkt.zip.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "removing punctuations"
+      ],
+      "metadata": {
+        "id": "Fqr8nynymz7C"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from nltk.tokenize import RegexpTokenizer\n",
+        "def rm_punct(inputdata):\n",
+        "  tokenizer = RegexpTokenizer(r'\\w+')\n",
+        "  for i in range(len(inputdata[\"text\"])):\n",
+        "    inputdata[\"text\"].iloc[i] = tokenizer.tokenize(str(inputdata[\"text\"].iloc[i]))\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "tYl8I3fBm1Hs"
+      },
+      "execution_count": 36,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def text_prep(inputdata):\n",
+        "    data_cleaning(inputdata)\n",
+        "    remove_numbers(inputdata)\n",
+        "    lowercase(inputdata)\n",
+        "    spell_check(inputdata)\n",
+        "    lemmatize_text(inputdata)\n",
+        "    rm_stop(inputdata)\n",
+        "    rm_punct(inputdata)\n",
+        "    return inputdata"
+      ],
+      "metadata": {
+        "id": "3dRC_Tcyx-8l"
+      },
+      "execution_count": 37,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def full_preprocess(inputdata):\n",
+        "  inputdata = drop_na(inputdata)\n",
+        "  inputdata = source_prep(inputdata)\n",
+        "  inputdata = prep_language(inputdata)\n",
+        "  inputdata = sensitive_prep(inputdata)\n",
+        "  inputdata = date_prep(inputdata)\n",
+        "  inputdata = prep_public_metrics(inputdata)\n",
+        "  inputdata = get_hashtags(inputdata)\n",
+        "  inputdata = dropcolumns(inputdata)\n",
+        "  inputdata = text_prep(inputdata)\n",
+        "  return inputdata"
+      ],
+      "metadata": {
+        "id": "eAtYSzMZb63U"
+      },
+      "execution_count": 39,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_tweets = full_preprocess(claim_tweets)"
+      ],
+      "metadata": {
+        "id": "DEColdh2b60b"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_tweets.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Preprocessed All/claim_tweets_preprocessed.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "_BJbbuGoBdhf"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_replies = full_preprocess(claim_replies_raw)"
+      ],
+      "metadata": {
+        "id": "dldK9xEmb6wi"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "claim_replies.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Preprocessed All/claim_replies_preprocessed.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "5fJOde3RCfdM"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_tweets = full_preprocess(news_tweets)"
+      ],
+      "metadata": {
+        "id": "E74mg2l4b6sK"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_tweets.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Preprocessed All/news_tweets_preprocessed.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "yZXyKpcBCjrw"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_replies = full_preprocess(news_replies)"
+      ],
+      "metadata": {
+        "id": "0tGYUlYQX3OK"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "news_replies.to_csv(\"/content/drive/MyDrive/Thesis/Data/Filled Datasets/Preprocessed All/news_replies_preprocessed.csv\",index=False)"
+      ],
+      "metadata": {
+        "id": "lR9iKhQ3Cmzv"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
